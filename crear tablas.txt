@@ -1,0 +1,151 @@
+DROP TABLE if exists "user" cascade;
+DROP TABLE if exists "carrito" cascade;
+DROP TABLE if exists "carrito_stock" cascade;
+DROP TABLE if exists "direccion" cascade;
+DROP TABLE if exists "mediodepago" cascade;
+DROP TABLE if exists "permisos" cascade;
+DROP TABLE if exists "producto" cascade;
+DROP TABLE if exists "pyme" cascade;
+DROP TABLE if exists "rol" cascade;
+DROP TABLE if exists "stock" cascade;
+DROP TABLE if exists "transaccion" cascade;
+DROP TABLE if exists "transaccion_producto" cascade;
+DROP TABLE if exists "valoracion" cascade;
+DROP TABLE if exists "rol_permisos" cascade;
+
+create table if not exists "carrito" (
+    id_carrito serial PRIMARY KEY,
+    total integer,
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "direccion" (
+    id_direccion serial PRIMARY KEY,
+    calle varchar(35) not null,
+    numero integer not null,
+    comuna varchar(25) not null,
+    region varchar(25) not null,
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+
+create table "user" (
+    id_user serial PRIMARY KEY,
+    username varchar(20) unique not null,
+    email varchar(35) not null,
+    password varchar(30) not null,
+    edad integer,
+	id_carrito integer,
+	id_direccion integer,
+    foreign key (id_carrito) references "carrito"(id_carrito),
+    foreign key (id_direccion) references "direccion"(id_direccion),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "producto" (
+    codigo_pr serial PRIMARY KEY,
+    name varchar(35) not null,
+    tipo_de_producto varchar(35) not null,
+    restriccion varchar(35) not null,
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "pyme" (
+    id_pyme serial PRIMARY KEY,
+    nombre varchar(35) not null,
+	id_user integer,
+    foreign key (id_user) references "user"(id_user),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "valoracion" (
+    id_valoracion serial PRIMARY KEY,
+    valoracion integer not null,
+    comentario varchar(100) not null,
+    id_pyme integer not null,
+    id_user integer not null,
+	foreign key (id_user) references "user"(id_user),
+	foreign key (id_pyme) references "pyme"(id_pyme),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+
+create table "stock" (
+    id_stock serial PRIMARY KEY,
+    cantidad integer not null,
+    precio integer not null,
+    codigo_pr integer not null,
+    id_pyme integer not null,
+	foreign key (id_pyme) references "pyme"(id_pyme),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "rol" (
+    id_rol serial PRIMARY KEY,
+    nombre varchar(35) not null,
+    id_user integer not null,
+	foreign key (id_user) references "user"(id_user),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "permisos" (
+    id_permisos serial PRIMARY KEY,
+    tipo varchar(35) not null,
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "mediodepago" (
+    codigo_pago serial PRIMARY KEY,
+    tipo varchar(35) not null,
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "transaccion" (
+    id_transaccion serial PRIMARY KEY,
+    fecha date not null,
+    id_user integer not null,
+    id_pyme integer not null,
+    codigo_pago integer not null,
+	foreign key (id_user) references "user"(id_user),
+	foreign key (id_pyme) references "pyme"(id_pyme),
+	foreign key (codigo_pago) references "mediodepago"(codigo_pago),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "carrito_stock" (
+    codigo_carrito_stock serial PRIMARY KEY,
+    id_carrito integer not null,
+    id_stock integer not null,
+	foreign key (id_carrito) references "carrito"(id_carrito),
+	foreign key (id_stock) references "stock"(id_stock),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "transaccion_producto" (
+    codigo_transaccion_producto serial PRIMARY KEY,
+    id_transaccion integer not null,
+    codigo_pr integer not null,
+	foreign key (id_transaccion) references "transaccion"(id_transaccion),
+    created_at date default CURRENT_DATE,
+    updated_at date default CURRENT_DATE
+);
+
+create table "rol_permisos" (
+	codigo_rol_permisos serial PRIMARY KEY,
+	id_rol integer,
+	id_permisos integer,
+	foreign key (id_rol) references "rol"(id_rol),
+	foreign key (id_permisos) references "permisos"(id_permisos)
+);
